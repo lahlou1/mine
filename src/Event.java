@@ -48,5 +48,7 @@ public abstract class Event {
                     this.startTime + " to " + this.endTime + ". Remenber: " + this.additionalInfo;
         }
     }
+
+
 }
 
