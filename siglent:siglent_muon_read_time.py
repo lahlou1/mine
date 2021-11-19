@@ -1,14 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Created on Wed Jun  6 11:16:51 2018
-
 @author: davidbailey
-
 Test program to read history frames from Siglent SDS1204X-E Oscilloscope
 For complete list of commands, see
 https://www.siglentamerica.com/wp-content/uploads/dlm_uploads/2017/10/Programming-Guide-1.pdf
-
 TROUBLESHOOTING NOTES:
     - Use smallest Mem Depth to avoid Read Errors
     â€“ Interval trigger seems to stop working if Channel 2 is turned off, so
@@ -25,12 +21,15 @@ from matplotlib import pyplot as plt
 
 
 
+
 def min1_min2_indices(number_array):
     lst = []
     for i in range(len(number_array) - 1):
-        if number_array[i - 1] > number_array[i] < number_array[i + 1] and number_array[i] < 60:
+        if number_array[i - 1] > number_array[i] < number_array[i + 1] and number_array[i] < 45:
             lst.append(i)
     return lst
+
+
 
 time_per_unit = 2      #in nano seconds
 
@@ -94,11 +93,18 @@ while event_number < maximum_number_of_events :
         adc1                = numpy.array(array('b',wave1).tolist())
         CurrentDataSum      = sum(adc1)
         peaks_indeces = min1_min2_indices(adc1)
-        x_axis = numpy.arange(len(adc1[peaks_indeces[0]-5:peaks_indeces[0]+5]))
-        plt.plot(x_axis, adc1[peaks_indeces[0]-5:peaks_indeces[0]+5])
+        print(len(peaks_indeces))
+        num = 50
+        x_axis = numpy.arange(len(adc1[peaks_indeces[0]-num:peaks_indeces[0]+num]))
+        figure = plt.figure()
+        plt.plot(x_axis, adc1[peaks_indeces[0]-num:peaks_indeces[0] + num])
         plt.savefig('run ' + str(event_number),dpi=300)
         plt.show()
-        if CurrentDataSum != OldDataSum :
+        figure = plt.figure()
+        x_axis_1 = numpy.arange(len(adc1))
+        plt.plot(x_axis_1, adc1)
+        plt.savefig('run_1 ' + str(event_number),dpi=300)
+        if CurrentDataSum != OldDataSum and len(peaks_indeces) == 2:
             passed_threshold    = numpy.nonzero(adc1 < threshold_count)
             event_absolute_time = time.time()
             time_between_peaks = time_per_unit*abs(peaks_indeces[0] - peaks_indeces[1])
@@ -116,12 +122,14 @@ while event_number < maximum_number_of_events :
                            ' {6:6d}').
                               format(event_number, event_delta_time,
                                      time_between_peaks, min(adc1), peaks_indeces[0],
-                                     trigger_time, pulse_size ))
+                                     trigger_time,  peaks_indeces[1] ))
             print(tdc_string)
             tdcs.write(tdc_string+"\n" )
             tdcs.flush()
             event_number = event_number+1
             OldDataSum = CurrentDataSum
+        else:
+            print(peaks_indeces)
     except :
         print("Readout Error!",status[5:])
         time.sleep(0.2)
