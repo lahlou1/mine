@@ -27,16 +27,9 @@ from matplotlib import pyplot as plt
 
 def min1_min2_indices(number_array):
     lst = []
-    absolute_min = numpy.min(number_array)
-    current_min = number_array[0]
-    second_min_index = 0
-    for i in range(len(number_array)):
-        if number_array[i] == absolute_min:
+    for i in range(len(number_array) - 1):
+        if number_array[i - 1] > number_array[i] < number_array[i + 1] and number_array[i] < 60:
             lst.append(i)
-        elif current_min > number_array[i]:
-            current_min = number_array[i]
-            second_min_index = i
-    lst.append(second_min_index)
     return lst
 
 time_per_unit = 2      #in nano seconds
