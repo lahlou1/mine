@@ -45,6 +45,7 @@ data = []
 event_number=0
 pulses = open("pulses.txt", "wb")
 tdcs   = open("times.txt", "w")
+p   = open("pulses - Copy.txt", "w")
 trigger_times = []
 pulse_sizes   = []
 
@@ -130,6 +131,10 @@ while event_number < maximum_number_of_events :
             OldDataSum = CurrentDataSum
         else:
             print(peaks_indeces)
+            for meme in adc1:
+                p.write(meme)
+                p.flush()
+
     except :
         print("Readout Error!",status[5:])
         time.sleep(0.2)
