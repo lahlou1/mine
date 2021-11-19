@@ -100,14 +100,14 @@ while event_number < maximum_number_of_events :
         wave1               = trace1[21:-2] # Strip "\n\n" from end
         adc1                = numpy.array(array('b',wave1).tolist())
         CurrentDataSum      = sum(adc1)
-        x_axis = numpy.arange(len(adc1))
-        plt.plot(x_axis, adc1)
+        peaks_indeces = min1_min2_indices(adc1)
+        x_axis = numpy.arange(len(adc1[peaks_indeces[0]-5:peaks_indeces[0]+5]))
+        plt.plot(x_axis, adc1[peaks_indeces[0]-5:peaks_indeces[0]+5])
         plt.savefig('run ' + str(event_number),dpi=300)
         plt.show()
         if CurrentDataSum != OldDataSum :
             passed_threshold    = numpy.nonzero(adc1 < threshold_count)
             event_absolute_time = time.time()
-            peaks_indeces = min1_min2_indices(adc1)
             time_between_peaks = time_per_unit*abs(peaks_indeces[0] - peaks_indeces[1])
             event_delta_time    = event_absolute_time - start_time
             trigger_time        = passed_threshold[0][0]
