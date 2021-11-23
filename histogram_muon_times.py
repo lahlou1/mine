@@ -33,6 +33,9 @@ from __future__ import unicode_literals
 
 import numpy
 from matplotlib import pyplot
+from scipy.optimize import curve_fit
+
+
 
 ## Load data from file (Change name to your data file)
 #   Data file is a simple text file, with columns of numbers.
@@ -42,36 +45,24 @@ columns = numpy.loadtxt("times.txt",unpack=True, skiprows=1)     # Test
 time_division_size   = 2
 frame_time_divisions = 14
 frame_points         = 14000
-print(columns[5])
-print(columns[1])
+print(columns[2])
 zero_time = 23.65
 
 # Current format
-decay_times = zero_time-columns[5]*time_division_size*frame_time_divisions/frame_points
+decay_times = columns[2]/1000  #micro seconds
 N_decays = len(decay_times)
 hist_min,hist_max = 0,25
+num_bins = 20
+
 
 ## Histogram the selected data column
 #    Only the column number is required, all other parameters are optional.
 #       For all the pyplot.hist parameters and options, see
 #           http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.hist
-bin_contents, bin_ends, patches = pyplot.hist(
-                decay_times,          # Selected data column
-                # All the following parameters are optional
-                bins      = 50,      # number of hisogram bins
-                # Minimum and maximum of data to be plotted
-                range     = (hist_min,hist_max),
-                label     = "muon decay data", # label for this data
-                normed    = False,   # normalize histogram to unity
-                log       = True,    # Choose if y log axis
-                histtype  = "bar",   # Type of histogram
-                facecolor = "green", # bar colour
-                edgecolor = "blue",  # bar border colour
-                linewidth = 1,       # bar border width
-                alpha     = 0.8,     # bar transparency
-                )
+bin_contents, bin_ends, patches = pyplot.hist(decay_times, bins=num_bins)
 
-print(sum(bin_contents), " entries in histogram")
+print(bin_contents, " entries in histogram")
+print(bin_ends)
 
 # Plot and axis titles (optional, but very strongly recommended)
 pyplot.title("Muon Decay times from Old Liquid Scintillator Detector")
@@ -86,18 +77,40 @@ bin_widths    = len(bin_contents)*[bin_width]
 bin_positions = bin_ends[0:-1]+bin_width/2.0
 numpy.savetxt("hist.txt", list(zip(bin_positions, bin_widths, bin_contents)))
 
+
+
+def f(x, a, b, c):
+    return a*numpy.exp(-b*x) + c
+
+x = numpy.zeros(num_bins)
+for i in range(num_bins):
+    x[i] = bin_ends[i]
+
+
+
+p_opt_1 , p_cov_1 = curve_fit(f, x, bin_contents)
+
+print(p_opt_1)
+print(p_cov_1)
+truc = 1/p_opt_1[1]
+print(truc)
+print(p_cov_1[1][1]*truc**2)
+
+
 lifetime = 2.197   # Muon lifetime
-x=numpy.arange(hist_min,0.5*hist_max,0.1)
-y=bin_contents[0]*numpy.exp(-x/lifetime)
+y=f(x, p_opt_1[0], p_opt_1[1], p_opt_1[2])
 pyplot.plot(x,y,label="2.197 Âµs decay curve")
 
-# A legend is optional, but is useful is more than one set of data plotted.
+
+
+
 pyplot.legend()
 pyplot.gca().tick_params(which="both", right=True, top=True)
 
-# Save plot as a graphic file, if desired.
+
+
+
 pyplot.savefig('histogram_demo',dpi=300)
-# Display data plot in terminal
 pyplot.show()
 
 ##### End histogram_1D.py
