@@ -118,6 +118,45 @@ pyplot.gca().tick_params(which="both", right=True, top=True)
 pyplot.savefig('histogram_demo',dpi=300)
 pyplot.show()
 
+
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct 24 11:56:57 2021
+
+@author: keegan
+"""
+
+import numpy as np
+
+tau_0 = 2.19698   # [mu s] Muon lifetime
+
+# lambd_0 = 1/tau_0
+lambd_0 = 0.49
+
+lambd = 2.6267 # [mu s] From fit
+lambd_err = 0.046 # [mu s] +/- From fit
+
+p_to_m = 6/5
+
+f_p = 6/11
+
+lambd_c = (lambd - tau_0) / (1 - f_p * (lambd / tau_0))
+
+
+'''propagate error'''
+
+sigma_lambd_c = lambd_err * (1 - f_p) / (1 - f_p * (lambd / lambd_0))**2
+
+
+''' ----- '''
+
+print("capture rate is {} +/- {} mu s^-1".format(lambd_c,sigma_lambd_c))
+
+
+
+
 ##### End histogram_1D.py
 """
 Full text of MIT License:
