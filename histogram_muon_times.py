@@ -40,7 +40,11 @@ from scipy.optimize import curve_fit
 ## Load data from file (Change name to your data file)
 #   Data file is a simple text file, with columns of numbers.
 #   The "columns" do not need to be aligned.
-columns = numpy.loadtxt("times.txt",unpack=True, skiprows=1)     # Test
+
+num_data_points = 60
+columns = numpy.loadtxt("times.txt",unpack=True, skiprows=1, max_rows=num_data_points)  
+
+print(columns[2][len(columns[2])-1])
 
 time_division_size   = 2
 frame_time_divisions = 14
@@ -52,7 +56,7 @@ zero_time = 23.65
 decay_times = columns[2]/1000  #micro seconds
 N_decays = len(decay_times)
 hist_min,hist_max = 0,25
-num_bins = 20
+num_bins = 30
 
 
 ## Histogram the selected data column
@@ -93,13 +97,14 @@ p_opt_1 , p_cov_1 = curve_fit(f, x, bin_contents)
 print(p_opt_1)
 print(p_cov_1)
 truc = 1/p_opt_1[1]
+error_truc = p_cov_1[1][1]*truc**2
 print(truc)
-print(p_cov_1[1][1]*truc**2)
+print(error_truc)
 
 
 lifetime = 2.197   # Muon lifetime
 y=f(x, p_opt_1[0], p_opt_1[1], p_opt_1[2])
-pyplot.plot(x,y,label="2.197 Âµs decay curve")
+pyplot.plot(x,y,label=str(round(truc, 3)) + "±" + str(round(error_truc, 3)) + " Âµs decay curve")
 
 
 
